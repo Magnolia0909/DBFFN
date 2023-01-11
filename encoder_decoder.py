@@ -35,9 +35,8 @@ def subsequent_mask(size):
 
 
 class Transformer(nn.Module):
-    def __init__(self, encoder, decoder, src_embed, tgt_embed):
+    def __init__(self, decoder, src_embed, tgt_embed):
         super(Transformer, self).__init__()
-        self.encoder = encoder
         self.decoder = decoder
         self.src_embed = src_embed
         self.tgt_embed = tgt_embed
@@ -49,35 +48,10 @@ class Transformer(nn.Module):
     def forward(self, src, tgt, src_mask, tgt_mask):
         return self.decode(src, src_mask, tgt, tgt_mask)
 
-    def encode(self, src, src_mask):
-        return self.encoder(self.src_embed(src), src_mask)
-
     def decode(self, hidden_states, src_mask, tgt, tgt_mask):
         return self.decoder(self.tgt_embed(tgt), hidden_states, src_mask, tgt_mask)
 
 
-class Encoder(nn.Module):
-    def __init__(self, layer, N):
-        super(Encoder, self).__init__()
-        self.layers = clones(layer, N)
-        self.norm = LayerNorm(layer.d_model)
-
-    def forward(self, x, mask):
-        for layer in self.layers:
-            x = layer(x, mask)
-        return self.norm(x)
-
-class EncoderLayer(nn.Module):
-    def __init__(self, d_model, self_attn, feed_forward, dropout):
-        super(EncoderLayer, self).__init__()
-        self.self_attn = self_attn
-        self.feed_forward = feed_forward
-        self.sublayer = clones(SublayerConnection(d_model, dropout), 2)
-        self.d_model = d_model
-
-    def forward(self, x, mask):
-        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask))
-        return self.sublayer[1](x, self.feed_forward)
 
 class SublayerConnection(nn.Module):
     def __init__(self, d_model, dropout):
@@ -199,7 +173,6 @@ class EncoderDecoder(AttModel):
         ff = PositionwiseFeedForward(self.d_model, self.d_ff, self.dropout)
         position = PositionalEncoding(self.d_model, self.dropout)
         model = Transformer(
-            Encoder(EncoderLayer(self.d_model, c(attn), c(ff), self.dropout), self.num_layers),
             Decoder(
                 DecoderLayer(self.d_model, c(attn), c(attn), c(ff), self.dropout),
                 self.num_layers),
