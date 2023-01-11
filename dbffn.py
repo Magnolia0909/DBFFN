@@ -40,13 +40,3 @@ class DBModel(nn.Module):
             raise ValueError
         return output
 
-    def forward_mimic_cxr(self, images, targets=None, mode='train'):
-        att_feats, fc_feats = self.visual_extractor(images)
-        if mode == 'train':
-            output = self.encoder_decoder(fc_feats, att_feats, targets, mode='forward')
-        elif mode == 'sample':
-            output, _ = self.encoder_decoder(fc_feats, att_feats, mode='sample')
-        else:
-            raise ValueError
-        return output
-
