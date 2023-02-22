@@ -9,9 +9,9 @@ from einops import rearrange
 from math import sqrt
 import torch.nn.functional as F
 
-class VisualExtractor(nn.Module):
+class DualBranchExtractor(nn.Module):
     def __init__(self, args):
-        super(VisualExtractor, self).__init__()
+        super(DualBranchExtractor, self).__init__()
         self.visual_extractor = args.visual_extractor
         self.pretrained = args.visual_extractor_pretrained
         self.visual_extractor_02 = args.visual_extractor_02
