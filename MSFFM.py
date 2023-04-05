@@ -99,7 +99,6 @@ class DualBranchExtractor(nn.Module):
 
         patch_feats = self.model(images)
         patch_feats_02 = self.model_02(images)
-        print(patch_feats_02.size())
 
         # Resnet
         avg_feats = self.avg_fnt(patch_feats).squeeze().reshape(-1, patch_feats.size(1))
