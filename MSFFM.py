@@ -1,10 +1,7 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
-import vit_pytorch
-# import vit_pytorch.vit_with_patch_merger as vit
-import vit_pytorch.cait as cait
-# import vit_pytorch.t2t as t2t
+from .model import ViT
 from einops import rearrange
 from math import sqrt
 import torch.nn.functional as F
@@ -25,8 +22,8 @@ class DualBranchExtractor(nn.Module):
         self.visual_extractor_02_mlp_dim = args.visual_extractor_02_mlp_dim
         self.visual_extractor_02_emd_dropout = args.visual_extractor_02_emd_dropout
 		
-		self.aerfa = args.aerfa
-		self.beita = args.beita
+	self.aerfa = args.aerfa
+	self.beita = args.beita
 
         model = getattr(models, self.visual_extractor)(pretrained=self.pretrained)
 
@@ -43,7 +40,7 @@ class DualBranchExtractor(nn.Module):
         #                                                    )
 
         # ViT && ViT_with_patch_merger
-        model_02 = getattr(vit_pytorch, self.visual_extractor_02)(image_size=self.visual_extractor_02_image_size,
+        model_02 = ViT(image_size=self.visual_extractor_02_image_size,
                                                             patch_size=self.visual_extractor_02_patch_size,
                                                             num_classes=self.visual_extractor_02_num_classes,
                                                             dim=self.visual_extractor_02_dim,
@@ -62,7 +59,6 @@ class DualBranchExtractor(nn.Module):
         #                                                         t2t_layers = ((7, 4), (3, 2), (3, 2)))
 
         modules = list(model.children())[:-2]
-        modules_02 = list(model_02.children())[:-1]
         # num_ftrs = model .classifier.in_features
         # # model.classifier = nn.Sequential(
         # #     # nn.Linear(num_ftrs, 14),
@@ -71,7 +67,7 @@ class DualBranchExtractor(nn.Module):
         # modules = list(model.children())
 
         self.model = nn.Sequential(*modules)
-        self.model_02 = nn.Sequential(*modules_02)
+        self.model_02 = model_02
         self.avg_fnt = torch.nn.AvgPool2d(kernel_size=7, stride=1, padding=0)
 
         # self.avg_fnt = Pool(dim=self.visual_extractor_dim)
