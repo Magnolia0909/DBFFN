@@ -77,8 +77,8 @@ class DualBranchExtractor(nn.Module):
             nn.LeakyReLU(),
         )
 
-        self.W = nn.Linear (self.visual_extractor_02_mlp_dim, 2*self.visual_extractor_02_mlp_dim)
-        self.U = nn.Linear(self.visual_extractor_02_mlp_dim, 2*self.visual_extractor_02_mlp_dim)
+        self.A = nn.Linear (self.visual_extractor_02_mlp_dim, 2*self.visual_extractor_02_mlp_dim)
+        self.B = nn.Linear(self.visual_extractor_02_mlp_dim, 2*self.visual_extractor_02_mlp_dim)
 
     def patch_reshape(self, size, x):
 
@@ -143,20 +143,20 @@ class DualBranchExtractor(nn.Module):
         # return cat_patch_feat, cat_avg_feat
 
         # patch_feats_gate = patch_feats  + patch_feats_02
-        # gates = self.W(patch_feats) + self.U(torch.tanh(patch_feats_02))
+        # gates = self.A(patch_feats) + self.B(torch.tanh(patch_feats_02))
         # gates = torch.split(gates, split_size_or_sections=self.visual_extractor_02_mlp_dim, dim=2)
-        # input_gate, forget_gate = gates
-        # input_gate = F.log_softmax(input_gate)
-        # forget_gate = F.log_softmax(forget_gate)
-        # patch_feats_gate = input_gate * torch.tanh(patch_feats_gate) + forget_gate * patch_feats_02
+        # gate_01, gate_02 = gates
+        # gate_01 = F.log_softmax(gate_01)
+        # gate_02 = F.log_softmax(gate_02)
+        # patch_feats_gate = gate_01 * torch.tanh(patch_feats_gate) + gate_02 * patch_feats_02
         #
         # avg_feats_gate = avg_feats + avg_feats_02
-        # avg_gates = self.W(avg_feats) + self.U(torch.tanh(avg_feats_02))
-        # avg_gates = torch.split(avg_gates, split_size_or_sections=self.visual_extractor_02_mlp_dim, dim=1)
-        # avg_input_gate, avg_forget_gate = avg_gates
-        # avg_input_gate = F.log_softmax(avg_input_gate)
-        # avg_forget_gate = F.log_softmax(avg_forget_gate)
-        # avg_feats_gate = avg_input_gate * torch.tanh(avg_feats_gate) + avg_forget_gate * avg_feats_02
+        # avg_gates = self.A(avg_feats) + self.B(torch.tanh(avg_feats_02))
+        # avg_gatesgates. = torch.split(avg_gates, split_size_or_sections=self.visual_extractor_02_mlp_dim, dim=1)
+        # avg_gate_01, avg_gate_02 = avg_gates
+        # avg_gate_01 = F.log_softmax(avg_gate_01)
+        # avg_gate_02 = F.log_softmax(avg_gate_02)
+        # avg_feats_gate = avg_gate_01 * torch.tanh(avg_feats_gate) + avg_gate_02 * avg_feats_02
         # # print("patch_feat02", patch_feats_02.size())
         #
         # return self.aerfa*patch_feats+self.beita*patch_feats_02+self.beita*patch_feats_gate,\
